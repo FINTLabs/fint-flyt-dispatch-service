@@ -17,26 +17,34 @@ public class CaseEventConsumerConfiguration {
     public ConcurrentMessageListenerContainer<String, SakResource> newOrUpdatedCaseConsumer(
             InstanceFlowEventConsumerFactoryService instanceFlowEventConsumerFactoryService,
             DispatchRepository dispatchRepository,
-            DispatchCaseRequestProducerService dispatchCaseRequestProducerService
+            DispatchCaseRequestProducerService dispatchCaseRequestProducerService,
+            CaseDispatchedEventProducerService caseDispatchedEventProducerService,
+            CaseDispatchErrorProducerService caseDispatchErrorProducerService
     ) {
         return instanceFlowEventConsumerFactoryService.createFactory(
                 SakResource.class,
                 consumerRecord -> {
                     Dispatch dispatch = dispatchRepository.save(new Dispatch(Status.REQUESTED));
+
                     Status statusReply = dispatchCaseRequestProducerService.requestDispatchAndWaitForStatusReply(
                             consumerRecord.getConsumerRecord().value()
                     );
+
                     dispatch.setStatus(statusReply);
                     dispatchRepository.save(dispatch);
+
+                    if (statusReply == Status.ACCEPTED) {
+                        caseDispatchedEventProducerService.sendCaseDispatchedEvent(consumerRecord.getInstanceFlowHeaders());
+                    } else {
+                        caseDispatchErrorProducerService.sendDispatchError(consumerRecord.getInstanceFlowHeaders(), statusReply);
+                    }
+
                 },
                 new CommonLoggingErrorHandler(),
                 false
         ).createContainer(
                 EventTopicNameParameters.builder()
-                        .eventName("new-case")
-                        .build(),
-                EventTopicNameParameters.builder()
-                        .eventName("updated-case")
+                        .eventName("new-or-updated-case")
                         .build()
         );
     }

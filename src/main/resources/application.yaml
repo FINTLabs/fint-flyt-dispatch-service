@@ -10,7 +10,7 @@ spring:
       group-id: fint-flyt-dispatch-service
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/fint-flyt-dispatch-service
+    url: jdbc:postgresql://localhost:5435/fint-flyt-dispatch-service
     username: postgres
     password: password
   jpa:
