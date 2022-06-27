@@ -8,21 +8,6 @@ spring:
     bootstrap-servers: localhost:29092
     consumer:
       group-id: fint-flyt-dispatch-service
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5435/fint-flyt-dispatch-service
-    username: postgres
-    password: password
-  jpa:
-    properties:
-      hibernate:
-        jdbc:
-          lob:
-            non_contextual_creation: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        enable_lazy_load_no_trans: true
-    hibernate:
-      ddl-auto: update
   security:
     oauth2:
       resourceserver:
