@@ -63,5 +63,4 @@ spec:
           env:
             - { name: TZ, value: Europe/Oslo }
             - { name: JAVA_TOOL_OPTIONS, value: '-XX:+ExitOnOutOfMemoryError -Xmx1840M' }
-            - { name: logging.level.no.fintlabs.arkiv, value: info }
             - { name: fint.org-id, value: 'pwf.no' }
