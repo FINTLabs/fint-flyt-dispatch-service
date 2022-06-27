@@ -1,15 +1,12 @@
 fint:
+  org-id: fintlabs.no
   kafka:
     topic:
-      org-id: fintlabs.no
+      org-id: ${fint.org-id}
+      domain-context: flyt
     application-id: fint-flyt-dispatch-service
 spring:
   kafka:
     bootstrap-servers: localhost:29092
     consumer:
       group-id: fint-flyt-dispatch-service
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: https://idp.felleskomponent.no/nidp/oauth/nam
