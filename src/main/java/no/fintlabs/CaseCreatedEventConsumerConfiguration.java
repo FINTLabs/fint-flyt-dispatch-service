@@ -6,18 +6,17 @@ import no.fintlabs.kafka.event.topic.EventTopicNameParameters;
 import no.fintlabs.model.Status;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.listener.CommonLoggingErrorHandler;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 
 @Configuration
-public class CaseEventConsumerConfiguration {
+public class CaseCreatedEventConsumerConfiguration {
 
     @Bean
     public ConcurrentMessageListenerContainer<String, SakResource> newOrUpdatedCaseConsumer(
             InstanceFlowEventConsumerFactoryService instanceFlowEventConsumerFactoryService,
             DispatchCaseRequestProducerService dispatchCaseRequestProducerService,
             CaseDispatchedEventProducerService caseDispatchedEventProducerService,
-            CaseDispatchErrorProducerService caseDispatchErrorProducerService
+            CaseDispatchingErrorHandlerService caseDispatchingErrorHandlerService
     ) {
         return instanceFlowEventConsumerFactoryService.createFactory(
                 SakResource.class,
@@ -26,16 +25,16 @@ public class CaseEventConsumerConfiguration {
                             consumerRecord.getConsumerRecord().value()
                     );
                     if (statusReply == Status.ACCEPTED) {
-                        caseDispatchedEventProducerService.sendCaseDispatchedEvent(consumerRecord.getInstanceFlowHeaders());
+                        caseDispatchedEventProducerService.publish(consumerRecord.getInstanceFlowHeaders());
                     } else {
-                        caseDispatchErrorProducerService.sendDispatchError(consumerRecord.getInstanceFlowHeaders(), statusReply);
+                        throw new CaseDispatchingException(statusReply);
                     }
                 },
-                new CommonLoggingErrorHandler(),
+                caseDispatchingErrorHandlerService,
                 false
         ).createContainer(
                 EventTopicNameParameters.builder()
-                        .eventName("new-or-updated-case")
+                        .eventName("case-created")
                         .build()
         );
     }

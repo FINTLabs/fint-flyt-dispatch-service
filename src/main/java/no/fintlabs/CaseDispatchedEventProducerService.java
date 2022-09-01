@@ -26,7 +26,7 @@ public class CaseDispatchedEventProducerService {
         eventTopicService.ensureTopic(eventTopicNameParameters, 0);
     }
 
-    public void sendCaseDispatchedEvent(InstanceFlowHeaders instanceFlowHeaders) {
+    public void publish(InstanceFlowHeaders instanceFlowHeaders) {
         eventProducer.send(
                 InstanceFlowEventProducerRecord
                         .builder()

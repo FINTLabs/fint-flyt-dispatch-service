@@ -3,6 +3,7 @@ package no.fintlabs;
 import no.fint.model.resource.arkiv.noark.SakResource;
 import no.fintlabs.kafka.common.topic.TopicCleanupPolicyParameters;
 import no.fintlabs.kafka.requestreply.RequestProducer;
+import no.fintlabs.kafka.requestreply.RequestProducerConfiguration;
 import no.fintlabs.kafka.requestreply.RequestProducerFactory;
 import no.fintlabs.kafka.requestreply.RequestProducerRecord;
 import no.fintlabs.kafka.requestreply.topic.ReplyTopicNameParameters;
@@ -12,6 +13,8 @@ import no.fintlabs.model.Status;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
 
 @Service
 public class DispatchCaseRequestProducerService {
@@ -33,12 +36,15 @@ public class DispatchCaseRequestProducerService {
         this.requestProducer = requestProducerFactory.createProducer(
                 replyTopicNameParameters,
                 SakResource.class,
-                Status.class
+                Status.class,
+                RequestProducerConfiguration
+                        .builder()
+                        .defaultReplyTimeout(Duration.ofSeconds(30))
+                        .build()
         );
     }
 
     public Status requestDispatchAndWaitForStatusReply(SakResource sakResource) {
-        // TODO: 27/04/2022 Switch resource gateway through request topic name?
         RequestTopicNameParameters requestTopicNameParameters = RequestTopicNameParameters.builder()
                 .resource("dispatch.case")
                 .build();
