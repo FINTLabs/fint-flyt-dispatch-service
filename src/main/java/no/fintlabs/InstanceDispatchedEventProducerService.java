@@ -9,19 +9,19 @@ import no.fintlabs.kafka.event.topic.EventTopicService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CaseDispatchedEventProducerService {
+public class InstanceDispatchedEventProducerService {
 
     private final InstanceFlowEventProducer<Object> eventProducer;
     private final EventTopicNameParameters eventTopicNameParameters;
 
-    public CaseDispatchedEventProducerService(
+    public InstanceDispatchedEventProducerService(
             InstanceFlowEventProducerFactory eventProducerFactory,
             EventTopicService eventTopicService
     ) {
         this.eventProducer = eventProducerFactory.createProducer(Object.class);
         eventTopicNameParameters = EventTopicNameParameters
                 .builder()
-                .eventName("case-dispatched")
+                .eventName("instance-dispatched")
                 .build();
         eventTopicService.ensureTopic(eventTopicNameParameters, 0);
     }

@@ -1,6 +1,5 @@
 package no.fintlabs;
 
-import no.fint.model.resource.arkiv.noark.SakResource;
 import no.fintlabs.kafka.common.topic.TopicCleanupPolicyParameters;
 import no.fintlabs.kafka.requestreply.RequestProducer;
 import no.fintlabs.kafka.requestreply.RequestProducerConfiguration;
@@ -10,6 +9,7 @@ import no.fintlabs.kafka.requestreply.topic.ReplyTopicNameParameters;
 import no.fintlabs.kafka.requestreply.topic.ReplyTopicService;
 import no.fintlabs.kafka.requestreply.topic.RequestTopicNameParameters;
 import no.fintlabs.model.Status;
+import no.fintlabs.model.mappedinstance.MappedInstance;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,25 +17,25 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 
 @Service
-public class DispatchCaseRequestProducerService {
+public class DispatchInstanceRequestProducerService {
 
-    private final RequestProducer<SakResource, Status> requestProducer;
+    private final RequestProducer<MappedInstance, Status> requestProducer;
 
-    public DispatchCaseRequestProducerService(
+    public DispatchInstanceRequestProducerService(
             RequestProducerFactory requestProducerFactory,
             ReplyTopicService replyTopicService,
             @Value("${fint.kafka.application-id}") String applicationId
     ) {
         ReplyTopicNameParameters replyTopicNameParameters = ReplyTopicNameParameters.builder()
                 .applicationId(applicationId)
-                .resource("dispatch.case")
+                .resource("dispatch-instance")
                 .build();
 
         replyTopicService.ensureTopic(replyTopicNameParameters, 0, TopicCleanupPolicyParameters.builder().build());
 
         this.requestProducer = requestProducerFactory.createProducer(
                 replyTopicNameParameters,
-                SakResource.class,
+                MappedInstance.class,
                 Status.class,
                 RequestProducerConfiguration
                         .builder()
@@ -44,14 +44,14 @@ public class DispatchCaseRequestProducerService {
         );
     }
 
-    public Status requestDispatchAndWaitForStatusReply(SakResource sakResource) {
+    public Status requestDispatchAndWaitForStatusReply(MappedInstance mappedInstance) {
         RequestTopicNameParameters requestTopicNameParameters = RequestTopicNameParameters.builder()
-                .resource("dispatch.case")
+                .resource("dispatch-instance")
                 .build();
         return requestProducer.requestAndReceive(
-                        RequestProducerRecord.<SakResource>builder()
+                        RequestProducerRecord.<MappedInstance>builder()
                                 .topicNameParameters(requestTopicNameParameters)
-                                .value(sakResource)
+                                .value(mappedInstance)
                                 .build()
                 )
                 .map(ConsumerRecord::value)

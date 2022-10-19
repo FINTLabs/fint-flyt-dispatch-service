@@ -36,8 +36,6 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
-    implementation "no.fint:fint-arkiv-resource-model-java:${apiVersion}"
-
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'no.fintlabs:fint-kafka:2.3.0'
     implementation 'no.fintlabs:fint-flyt-kafka:2.2.0'

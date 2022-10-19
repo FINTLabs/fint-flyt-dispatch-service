@@ -11,28 +11,28 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static no.fintlabs.ErrorCode.CASE_DISPATCH_ERROR;
+import static no.fintlabs.ErrorCode.INSTANCE_DISPATCH_ERROR;
 import static no.fintlabs.ErrorCode.GENERAL_SYSTEM_ERROR;
 
 @Service
-public class CaseDispatchingErrorProducerService {
+public class InstanceDispatchingErrorProducerService {
 
     private final InstanceFlowErrorEventProducer errorEventProducer;
     private final ErrorEventTopicNameParameters errorEventTopicNameParameters;
 
-    public CaseDispatchingErrorProducerService(
+    public InstanceDispatchingErrorProducerService(
             InstanceFlowErrorEventProducer errorEventProducer,
             ErrorEventTopicService errorEventTopicService
     ) {
         this.errorEventProducer = errorEventProducer;
         errorEventTopicNameParameters = ErrorEventTopicNameParameters
                 .builder()
-                .errorEventName("case-dispatching-error")
+                .errorEventName("instance-dispatching-error")
                 .build();
         errorEventTopicService.ensureTopic(errorEventTopicNameParameters, 0);
     }
 
-    void publishCaseDispatchErrorEvent(InstanceFlowHeaders instanceFlowHeaders, CaseDispatchingException caseDispatchingException) {
+    void publishInstanceDispatchErrorEvent(InstanceFlowHeaders instanceFlowHeaders, InstanceDispatchingException instanceDispatchingException) {
         errorEventProducer.send(
                 InstanceFlowErrorEventProducerRecord
                         .builder()
@@ -42,8 +42,8 @@ public class CaseDispatchingErrorProducerService {
                                 new ErrorCollection(
                                         Error
                                                 .builder()
-                                                .errorCode(CASE_DISPATCH_ERROR.getCode())
-                                                .args(Map.of("status", caseDispatchingException.getStatus().name()))
+                                                .errorCode(INSTANCE_DISPATCH_ERROR.getCode())
+                                                .args(Map.of("status", instanceDispatchingException.getStatus().name()))
                                                 .build()
                                 )
                         )
