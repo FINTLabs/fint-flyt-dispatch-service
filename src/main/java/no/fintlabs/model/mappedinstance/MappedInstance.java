@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @Builder
@@ -14,4 +15,5 @@ import java.util.Collection;
 @NoArgsConstructor
 public class MappedInstance {
     private Collection<MappedInstanceElement> elements = new ArrayList<>();
+    private List<Document> documents = new ArrayList<>();
 }
