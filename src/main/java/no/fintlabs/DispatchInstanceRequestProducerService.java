@@ -8,6 +8,7 @@ import no.fintlabs.kafka.requestreply.RequestProducerRecord;
 import no.fintlabs.kafka.requestreply.topic.ReplyTopicNameParameters;
 import no.fintlabs.kafka.requestreply.topic.ReplyTopicService;
 import no.fintlabs.kafka.requestreply.topic.RequestTopicNameParameters;
+import no.fintlabs.model.Result;
 import no.fintlabs.model.Status;
 import no.fintlabs.model.mappedinstance.MappedInstance;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -19,7 +20,7 @@ import java.time.Duration;
 @Service
 public class DispatchInstanceRequestProducerService {
 
-    private final RequestProducer<MappedInstance, Status> requestProducer;
+    private final RequestProducer<MappedInstance, Result> requestProducer;
 
     public DispatchInstanceRequestProducerService(
             RequestProducerFactory requestProducerFactory,
@@ -36,7 +37,7 @@ public class DispatchInstanceRequestProducerService {
         this.requestProducer = requestProducerFactory.createProducer(
                 replyTopicNameParameters,
                 MappedInstance.class,
-                Status.class,
+                Result.class,
                 RequestProducerConfiguration
                         .builder()
                         .defaultReplyTimeout(Duration.ofSeconds(30))
@@ -44,7 +45,7 @@ public class DispatchInstanceRequestProducerService {
         );
     }
 
-    public Status requestDispatchAndWaitForStatusReply(MappedInstance mappedInstance) {
+    public Result requestDispatchAndWaitForStatusReply(MappedInstance mappedInstance) {
         RequestTopicNameParameters requestTopicNameParameters = RequestTopicNameParameters.builder()
                 .resource("dispatch-instance")
                 .build();
@@ -55,7 +56,7 @@ public class DispatchInstanceRequestProducerService {
                                 .build()
                 )
                 .map(ConsumerRecord::value)
-                .orElse(Status.FAILED);
+                .orElse(new Result(Status.FAILED, null));
     }
 
 }

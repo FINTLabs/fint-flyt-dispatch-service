@@ -2,6 +2,7 @@ package no.fintlabs;
 
 import no.fintlabs.flyt.kafka.event.InstanceFlowEventConsumerFactoryService;
 import no.fintlabs.kafka.event.topic.EventTopicNameParameters;
+import no.fintlabs.model.Result;
 import no.fintlabs.model.Status;
 import no.fintlabs.model.mappedinstance.MappedInstance;
 import org.springframework.context.annotation.Bean;
@@ -21,13 +22,18 @@ public class InstanceMappedEventConsumerConfiguration {
         return instanceFlowEventConsumerFactoryService.createFactory(
                 MappedInstance.class,
                 consumerRecord -> {
-                    Status statusReply = dispatchInstanceRequestProducerService.requestDispatchAndWaitForStatusReply(
+                    Result result = dispatchInstanceRequestProducerService.requestDispatchAndWaitForStatusReply(
                             consumerRecord.getConsumerRecord().value()
                     );
-                    if (statusReply == Status.ACCEPTED) {
-                        instanceDispatchedEventProducerService.publish(consumerRecord.getInstanceFlowHeaders());
+                    if (result.getStatus() == Status.ACCEPTED) {
+                        instanceDispatchedEventProducerService.publish(
+                                consumerRecord.getInstanceFlowHeaders()
+                                        .toBuilder()
+                                        .archiveInstanceId(result.getArchiveCaseId())
+                                        .build()
+                        );
                     } else {
-                        throw new InstanceDispatchingException(statusReply);
+                        throw new InstanceDispatchingException(result.getStatus());
                     }
                 },
                 instanceDispatchingErrorHandlerService,
