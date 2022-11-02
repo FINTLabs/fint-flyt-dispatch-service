@@ -1,5 +1,6 @@
 package no.fintlabs;
 
+import no.fintlabs.exceptions.InstanceDispatchDeclinedException;
 import no.fintlabs.flyt.kafka.event.error.InstanceFlowErrorEventProducer;
 import no.fintlabs.flyt.kafka.event.error.InstanceFlowErrorEventProducerRecord;
 import no.fintlabs.flyt.kafka.headers.InstanceFlowHeaders;
@@ -11,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static no.fintlabs.ErrorCode.INSTANCE_DISPATCH_ERROR;
 import static no.fintlabs.ErrorCode.GENERAL_SYSTEM_ERROR;
+import static no.fintlabs.ErrorCode.INSTANCE_DISPATCH_DECLINED_ERROR;
 
 @Service
 public class InstanceDispatchingErrorProducerService {
@@ -32,7 +33,7 @@ public class InstanceDispatchingErrorProducerService {
         errorEventTopicService.ensureTopic(errorEventTopicNameParameters, 0);
     }
 
-    void publishInstanceDispatchErrorEvent(InstanceFlowHeaders instanceFlowHeaders, InstanceDispatchingException instanceDispatchingException) {
+    void publishInstanceDispatchDeclinedErrorEvent(InstanceFlowHeaders instanceFlowHeaders, InstanceDispatchDeclinedException instanceDispatchDeclinedException) {
         errorEventProducer.send(
                 InstanceFlowErrorEventProducerRecord
                         .builder()
@@ -42,8 +43,8 @@ public class InstanceDispatchingErrorProducerService {
                                 new ErrorCollection(
                                         Error
                                                 .builder()
-                                                .errorCode(INSTANCE_DISPATCH_ERROR.getCode())
-                                                .args(Map.of("status", instanceDispatchingException.getStatus().name()))
+                                                .errorCode(INSTANCE_DISPATCH_DECLINED_ERROR.getCode())
+                                                .args(Map.of("errorMessage", instanceDispatchDeclinedException.getErrorMessage()))
                                                 .build()
                                 )
                         )

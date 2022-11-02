@@ -1,5 +1,6 @@
 package no.fintlabs;
 
+import no.fintlabs.exceptions.InstanceDispatchDeclinedException;
 import no.fintlabs.flyt.kafka.InstanceFlowErrorHandler;
 import no.fintlabs.flyt.kafka.headers.InstanceFlowHeaders;
 import no.fintlabs.flyt.kafka.headers.InstanceFlowHeadersMapper;
@@ -21,8 +22,11 @@ public class InstanceDispatchingErrorHandlerService extends InstanceFlowErrorHan
 
     @Override
     public void handleInstanceFlowRecord(Throwable cause, InstanceFlowHeaders instanceFlowHeaders, ConsumerRecord<?, ?> consumerRecord) {
-        if (cause instanceof InstanceDispatchingException) {
-            instanceDispatchingErrorProducerService.publishInstanceDispatchErrorEvent(instanceFlowHeaders, (InstanceDispatchingException) cause);
+        if (cause instanceof InstanceDispatchDeclinedException) {
+            instanceDispatchingErrorProducerService.publishInstanceDispatchDeclinedErrorEvent(
+                    instanceFlowHeaders,
+                    (InstanceDispatchDeclinedException) cause
+            );
         } else {
             instanceDispatchingErrorProducerService.publishGeneralSystemErrorEvent(instanceFlowHeaders);
         }

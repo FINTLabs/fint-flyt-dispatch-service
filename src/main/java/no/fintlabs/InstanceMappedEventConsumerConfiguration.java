@@ -1,9 +1,10 @@
 package no.fintlabs;
 
+import no.fintlabs.exceptions.InstanceDispatchDeclinedException;
+import no.fintlabs.exceptions.InstanceDispatchFailedException;
 import no.fintlabs.flyt.kafka.event.InstanceFlowEventConsumerFactoryService;
 import no.fintlabs.kafka.event.topic.EventTopicNameParameters;
 import no.fintlabs.model.Result;
-import no.fintlabs.model.Status;
 import no.fintlabs.model.mappedinstance.MappedInstance;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,15 +26,14 @@ public class InstanceMappedEventConsumerConfiguration {
                     Result result = dispatchInstanceRequestProducerService.requestDispatchAndWaitForStatusReply(
                             consumerRecord.getConsumerRecord().value()
                     );
-                    if (result.getStatus() == Status.ACCEPTED) {
-                        instanceDispatchedEventProducerService.publish(
+                    switch (result.getStatus()) {
+                        case ACCEPTED -> instanceDispatchedEventProducerService.publish(
                                 consumerRecord.getInstanceFlowHeaders()
                                         .toBuilder()
                                         .archiveInstanceId(result.getArchiveCaseId())
-                                        .build()
-                        );
-                    } else {
-                        throw new InstanceDispatchingException(result.getStatus());
+                                        .build());
+                        case DECLINED -> throw new InstanceDispatchDeclinedException(result.getErrorMessage());
+                        case FAILED -> throw new InstanceDispatchFailedException();
                     }
                 },
                 instanceDispatchingErrorHandlerService,

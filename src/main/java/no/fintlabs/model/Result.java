@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class Result {
     private Status status;
     private String archiveCaseId;
+    private String errorMessage;
 }

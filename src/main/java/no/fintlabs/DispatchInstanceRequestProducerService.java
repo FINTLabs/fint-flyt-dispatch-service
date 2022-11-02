@@ -9,7 +9,6 @@ import no.fintlabs.kafka.requestreply.topic.ReplyTopicNameParameters;
 import no.fintlabs.kafka.requestreply.topic.ReplyTopicService;
 import no.fintlabs.kafka.requestreply.topic.RequestTopicNameParameters;
 import no.fintlabs.model.Result;
-import no.fintlabs.model.Status;
 import no.fintlabs.model.mappedinstance.MappedInstance;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,7 +55,7 @@ public class DispatchInstanceRequestProducerService {
                                 .build()
                 )
                 .map(ConsumerRecord::value)
-                .orElse(new Result(Status.FAILED, null));
+                .orElseThrow(() -> new RuntimeException("No dispatch result received"));
     }
 
 }
