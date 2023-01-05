@@ -5,3 +5,6 @@ spring:
     include:
       - flyt-kafka
       - flyt-logging
+logging:
+  level:
+    org.apache.kafka: DEBUG
