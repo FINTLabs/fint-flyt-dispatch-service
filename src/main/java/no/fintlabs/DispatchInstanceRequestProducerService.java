@@ -1,10 +1,12 @@
 package no.fintlabs;
 
+import no.fintlabs.flyt.kafka.InstanceFlowConsumerRecord;
+import no.fintlabs.flyt.kafka.headers.InstanceFlowHeaders;
+import no.fintlabs.flyt.kafka.requestreply.InstanceFlowRequestProducer;
+import no.fintlabs.flyt.kafka.requestreply.InstanceFlowRequestProducerFactory;
+import no.fintlabs.flyt.kafka.requestreply.InstanceFlowRequestProducerRecord;
 import no.fintlabs.kafka.common.topic.TopicCleanupPolicyParameters;
-import no.fintlabs.kafka.requestreply.RequestProducer;
 import no.fintlabs.kafka.requestreply.RequestProducerConfiguration;
-import no.fintlabs.kafka.requestreply.RequestProducerFactory;
-import no.fintlabs.kafka.requestreply.RequestProducerRecord;
 import no.fintlabs.kafka.requestreply.topic.ReplyTopicNameParameters;
 import no.fintlabs.kafka.requestreply.topic.ReplyTopicService;
 import no.fintlabs.kafka.requestreply.topic.RequestTopicNameParameters;
@@ -19,10 +21,10 @@ import java.time.Duration;
 @Service
 public class DispatchInstanceRequestProducerService {
 
-    private final RequestProducer<MappedInstance, Result> requestProducer;
+    private final InstanceFlowRequestProducer<MappedInstance, Result> instanceFlowRequestProducer;
 
     public DispatchInstanceRequestProducerService(
-            RequestProducerFactory requestProducerFactory,
+            InstanceFlowRequestProducerFactory instanceFlowRequestProducerFactory,
             ReplyTopicService replyTopicService,
             @Value("${fint.kafka.application-id}") String applicationId
     ) {
@@ -33,7 +35,7 @@ public class DispatchInstanceRequestProducerService {
 
         replyTopicService.ensureTopic(replyTopicNameParameters, 0, TopicCleanupPolicyParameters.builder().build());
 
-        this.requestProducer = requestProducerFactory.createProducer(
+        this.instanceFlowRequestProducer = instanceFlowRequestProducerFactory.createProducer(
                 replyTopicNameParameters,
                 MappedInstance.class,
                 Result.class,
@@ -44,18 +46,20 @@ public class DispatchInstanceRequestProducerService {
         );
     }
 
-    public Result requestDispatchAndWaitForStatusReply(MappedInstance mappedInstance) {
+    public Result requestDispatchAndWaitForStatusReply(InstanceFlowHeaders instanceFlowHeaders, MappedInstance mappedInstance) {
         RequestTopicNameParameters requestTopicNameParameters = RequestTopicNameParameters.builder()
                 .resource("dispatch-instance")
                 .build();
-        return requestProducer.requestAndReceive(
-                        RequestProducerRecord.<MappedInstance>builder()
+        return instanceFlowRequestProducer.requestAndReceive(
+                        InstanceFlowRequestProducerRecord.<MappedInstance>builder()
+                                .instanceFlowHeaders(instanceFlowHeaders)
                                 .topicNameParameters(requestTopicNameParameters)
                                 .value(mappedInstance)
                                 .build()
                 )
+                .map(InstanceFlowConsumerRecord::getConsumerRecord)
                 .map(ConsumerRecord::value)
-                .orElseThrow(() -> new RuntimeException("No dispatch result received"));
+                .orElseThrow(() -> new RuntimeException("No dispatch result received for instance with headers=" + instanceFlowHeaders));
     }
 
 }

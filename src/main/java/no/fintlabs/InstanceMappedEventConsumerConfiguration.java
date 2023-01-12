@@ -22,13 +22,14 @@ public class InstanceMappedEventConsumerConfiguration {
     ) {
         return instanceFlowEventConsumerFactoryService.createFactory(
                 MappedInstance.class,
-                consumerRecord -> {
+                instanceFlowConsumerRecord -> {
                     Result result = dispatchInstanceRequestProducerService.requestDispatchAndWaitForStatusReply(
-                            consumerRecord.getConsumerRecord().value()
+                            instanceFlowConsumerRecord.getInstanceFlowHeaders(),
+                            instanceFlowConsumerRecord.getConsumerRecord().value()
                     );
                     switch (result.getStatus()) {
                         case ACCEPTED -> instanceDispatchedEventProducerService.publish(
-                                consumerRecord.getInstanceFlowHeaders()
+                                instanceFlowConsumerRecord.getInstanceFlowHeaders()
                                         .toBuilder()
                                         .archiveInstanceId(result.getArchiveCaseId())
                                         .build());
