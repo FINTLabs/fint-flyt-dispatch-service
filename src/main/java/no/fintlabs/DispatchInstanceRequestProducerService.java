@@ -11,7 +11,6 @@ import no.fintlabs.kafka.requestreply.topic.ReplyTopicNameParameters;
 import no.fintlabs.kafka.requestreply.topic.ReplyTopicService;
 import no.fintlabs.kafka.requestreply.topic.RequestTopicNameParameters;
 import no.fintlabs.model.Result;
-import no.fintlabs.model.mappedinstance.MappedInstance;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ import java.time.Duration;
 @Service
 public class DispatchInstanceRequestProducerService {
 
-    private final InstanceFlowRequestProducer<MappedInstance, Result> instanceFlowRequestProducer;
+    private final InstanceFlowRequestProducer<Object, Result> instanceFlowRequestProducer;
 
     public DispatchInstanceRequestProducerService(
             InstanceFlowRequestProducerFactory instanceFlowRequestProducerFactory,
@@ -37,7 +36,7 @@ public class DispatchInstanceRequestProducerService {
 
         this.instanceFlowRequestProducer = instanceFlowRequestProducerFactory.createProducer(
                 replyTopicNameParameters,
-                MappedInstance.class,
+                Object.class,
                 Result.class,
                 RequestProducerConfiguration
                         .builder()
@@ -46,12 +45,12 @@ public class DispatchInstanceRequestProducerService {
         );
     }
 
-    public Result requestDispatchAndWaitForStatusReply(InstanceFlowHeaders instanceFlowHeaders, MappedInstance mappedInstance) {
+    public Result requestDispatchAndWaitForStatusReply(InstanceFlowHeaders instanceFlowHeaders, Object mappedInstance) {
         RequestTopicNameParameters requestTopicNameParameters = RequestTopicNameParameters.builder()
                 .resource("dispatch-instance")
                 .build();
         return instanceFlowRequestProducer.requestAndReceive(
-                        InstanceFlowRequestProducerRecord.<MappedInstance>builder()
+                        InstanceFlowRequestProducerRecord.builder()
                                 .instanceFlowHeaders(instanceFlowHeaders)
                                 .topicNameParameters(requestTopicNameParameters)
                                 .value(mappedInstance)
