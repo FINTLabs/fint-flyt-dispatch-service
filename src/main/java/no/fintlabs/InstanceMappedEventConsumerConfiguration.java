@@ -5,7 +5,6 @@ import no.fintlabs.exceptions.InstanceDispatchFailedException;
 import no.fintlabs.flyt.kafka.event.InstanceFlowEventConsumerFactoryService;
 import no.fintlabs.kafka.event.topic.EventTopicNameParameters;
 import no.fintlabs.model.Result;
-import no.fintlabs.model.mappedinstance.MappedInstance;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
@@ -14,14 +13,14 @@ import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 public class InstanceMappedEventConsumerConfiguration {
 
     @Bean
-    public ConcurrentMessageListenerContainer<String, MappedInstance> instanceMappedEventConsumer(
+    public ConcurrentMessageListenerContainer<String, Object> instanceMappedEventConsumer(
             InstanceFlowEventConsumerFactoryService instanceFlowEventConsumerFactoryService,
             DispatchInstanceRequestProducerService dispatchInstanceRequestProducerService,
             InstanceDispatchedEventProducerService instanceDispatchedEventProducerService,
             InstanceDispatchingErrorHandlerService instanceDispatchingErrorHandlerService
     ) {
         return instanceFlowEventConsumerFactoryService.createFactory(
-                MappedInstance.class,
+                Object.class,
                 instanceFlowConsumerRecord -> {
                     Result result = dispatchInstanceRequestProducerService.requestDispatchAndWaitForStatusReply(
                             instanceFlowConsumerRecord.getInstanceFlowHeaders(),
