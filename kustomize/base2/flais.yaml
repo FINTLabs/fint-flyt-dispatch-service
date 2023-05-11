@@ -4,8 +4,8 @@ metadata:
   name: fint-flyt-dispatch-service
   namespace: fintlabs-no
   labels:
-    app.kubernetes.io/instance: fint-flyt-egrunnerverv-dispatch-gateway_fintlabs_no
-    app.kubernetes.io/name: fint-flyt-egrunnerverv-dispatch-gateway
+    app.kubernetes.io/instance: fint-flyt-dispatch-service_fintlabs_no
+    app.kubernetes.io/name: fint-flyt-dispatch-service
     app.kubernetes.io/version: latest
     app.kubernetes.io/component: backend
     app.kubernetes.io/part-of: fint-flyt
