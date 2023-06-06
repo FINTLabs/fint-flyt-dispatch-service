@@ -1,7 +1,6 @@
 package no.fintlabs.model;
 
 import lombok.*;
-import lombok.extern.jackson.Jacksonized;
 
 @Getter
 @AllArgsConstructor
