@@ -1,4 +1,4 @@
-package no.fintlabs;
+package no.fintlabs.kafka;
 
 import no.fintlabs.flyt.kafka.event.InstanceFlowEventProducer;
 import no.fintlabs.flyt.kafka.event.InstanceFlowEventProducerFactory;
@@ -9,30 +9,30 @@ import no.fintlabs.kafka.event.topic.EventTopicService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class InstanceDispatchedEventProducerService {
+public class InstanceReadyForDispatchEventProducerService {
 
     private final InstanceFlowEventProducer<Object> eventProducer;
     private final EventTopicNameParameters eventTopicNameParameters;
 
-    public InstanceDispatchedEventProducerService(
+    public InstanceReadyForDispatchEventProducerService(
             InstanceFlowEventProducerFactory eventProducerFactory,
             EventTopicService eventTopicService
     ) {
         this.eventProducer = eventProducerFactory.createProducer(Object.class);
         eventTopicNameParameters = EventTopicNameParameters
                 .builder()
-                .eventName("instance-dispatched")
+                .eventName("instance-ready-for-dispatch")
                 .build();
         eventTopicService.ensureTopic(eventTopicNameParameters, 0);
     }
 
-    public void publish(InstanceFlowHeaders instanceFlowHeaders) {
+    public void publish(InstanceFlowHeaders instanceFlowHeaders, Object instance) {
         eventProducer.send(
                 InstanceFlowEventProducerRecord
                         .builder()
                         .topicNameParameters(eventTopicNameParameters)
                         .instanceFlowHeaders(instanceFlowHeaders)
-                        .value(null)
+                        .value(instance)
                         .build()
         );
     }
