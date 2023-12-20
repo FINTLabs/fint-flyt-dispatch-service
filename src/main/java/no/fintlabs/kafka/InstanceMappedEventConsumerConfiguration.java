@@ -1,7 +1,6 @@
 package no.fintlabs.kafka;
 
 import no.fintlabs.flyt.kafka.event.InstanceFlowEventConsumerFactoryService;
-import no.fintlabs.kafka.error.InstanceDispatchingErrorHandlerService;
 import no.fintlabs.kafka.event.topic.EventTopicNameParameters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,18 +12,15 @@ public class InstanceMappedEventConsumerConfiguration {
     @Bean
     public ConcurrentMessageListenerContainer<String, Object> instanceMappedEventConsumer(
             InstanceFlowEventConsumerFactoryService instanceFlowEventConsumerFactoryService,
-            InstanceReadyForDispatchEventProducerService instanceReadyForDispatchEventProducerService,
-            InstanceDispatchingErrorHandlerService instanceDispatchingErrorHandlerService
+            InstanceReadyForDispatchEventProducerService instanceReadyForDispatchEventProducerService
     ) {
-        return instanceFlowEventConsumerFactoryService.createFactory(
+        return instanceFlowEventConsumerFactoryService.createRecordFactory(
                 Object.class,
                 instanceFlowConsumerRecord ->
                         instanceReadyForDispatchEventProducerService.publish(
                                 instanceFlowConsumerRecord.getInstanceFlowHeaders(),
                                 instanceFlowConsumerRecord.getConsumerRecord().value()
-                        ),
-                instanceDispatchingErrorHandlerService,
-                false
+                        )
         ).createContainer(
                 EventTopicNameParameters.builder()
                         .eventName("instance-mapped")
