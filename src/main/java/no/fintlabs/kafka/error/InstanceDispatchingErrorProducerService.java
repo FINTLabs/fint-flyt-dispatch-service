@@ -30,7 +30,7 @@ public class InstanceDispatchingErrorProducerService {
         errorEventTopicService.ensureTopic(errorEventTopicNameParameters, 0);
     }
 
-    void publishGeneralSystemErrorEvent(InstanceFlowHeaders instanceFlowHeaders) {
+    public void publishGeneralSystemErrorEvent(InstanceFlowHeaders instanceFlowHeaders) {
         errorEventProducer.send(
                 InstanceFlowErrorEventProducerRecord
                         .builder()
