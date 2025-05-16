@@ -23,7 +23,7 @@ public class InstanceReadyForDispatchEventProducerService {
                 .builder()
                 .eventName("instance-ready-for-dispatch")
                 .build();
-        eventTopicService.ensureTopic(eventTopicNameParameters, 0);
+        eventTopicService.ensureTopic(eventTopicNameParameters, 345600000);
     }
 
     public void publish(InstanceFlowHeaders instanceFlowHeaders, Object instance) {
