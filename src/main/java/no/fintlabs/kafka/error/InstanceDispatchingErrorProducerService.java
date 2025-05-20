@@ -27,7 +27,7 @@ public class InstanceDispatchingErrorProducerService {
                 .builder()
                 .errorEventName("instance-dispatching-error")
                 .build();
-        errorEventTopicService.ensureTopic(errorEventTopicNameParameters, 345600000);
+        errorEventTopicService.ensureTopic(errorEventTopicNameParameters, 0);
     }
 
     public void publishGeneralSystemErrorEvent(InstanceFlowHeaders instanceFlowHeaders) {
