@@ -1,7 +1,7 @@
 fint:
   application-id: fint-flyt-dispatch-service
   flyt:
-    instance-service:
+    dispatch-service:
       kafka:
         topic:
           instance-processing-events-retention-time-ms: 345600000
