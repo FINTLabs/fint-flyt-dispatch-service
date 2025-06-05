@@ -3,11 +3,11 @@ package no.fintlabs.kafka.error;
 import no.fintlabs.flyt.kafka.event.error.InstanceFlowErrorEventProducer;
 import no.fintlabs.flyt.kafka.event.error.InstanceFlowErrorEventProducerRecord;
 import no.fintlabs.flyt.kafka.headers.InstanceFlowHeaders;
+import no.fintlabs.kafka.KafkaTopicProperties;
 import no.fintlabs.kafka.event.error.Error;
 import no.fintlabs.kafka.event.error.ErrorCollection;
 import no.fintlabs.kafka.event.error.topic.ErrorEventTopicNameParameters;
 import no.fintlabs.kafka.event.error.topic.ErrorEventTopicService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import static no.fintlabs.kafka.error.ErrorCode.GENERAL_SYSTEM_ERROR;
@@ -22,14 +22,14 @@ public class InstanceDispatchingErrorProducerService {
     public InstanceDispatchingErrorProducerService(
             InstanceFlowErrorEventProducer errorEventProducer,
             ErrorEventTopicService errorEventTopicService,
-            @Value("${fint.kafka.topic.instance-retention-ms}") long retentionMs
+            KafkaTopicProperties kafkaTopicProperties
     ) {
         this.errorEventProducer = errorEventProducer;
         errorEventTopicNameParameters = ErrorEventTopicNameParameters
                 .builder()
                 .errorEventName("instance-dispatching-error")
                 .build();
-        errorEventTopicService.ensureTopic(errorEventTopicNameParameters, retentionMs);
+        errorEventTopicService.ensureTopic(errorEventTopicNameParameters, kafkaTopicProperties.getInstanceProcessingEventsRetentionTimeMs());
     }
 
     public void publishGeneralSystemErrorEvent(InstanceFlowHeaders instanceFlowHeaders) {
