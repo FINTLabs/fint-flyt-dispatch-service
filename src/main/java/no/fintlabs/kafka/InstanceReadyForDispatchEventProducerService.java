@@ -16,14 +16,15 @@ public class InstanceReadyForDispatchEventProducerService {
 
     public InstanceReadyForDispatchEventProducerService(
             InstanceFlowEventProducerFactory eventProducerFactory,
-            EventTopicService eventTopicService
+            EventTopicService eventTopicService,
+            KafkaTopicProperties kafkaTopicProperties
     ) {
         this.eventProducer = eventProducerFactory.createProducer(Object.class);
         eventTopicNameParameters = EventTopicNameParameters
                 .builder()
                 .eventName("instance-ready-for-dispatch")
                 .build();
-        eventTopicService.ensureTopic(eventTopicNameParameters, 0);
+        eventTopicService.ensureTopic(eventTopicNameParameters, kafkaTopicProperties.getInstanceProcessingEventsRetentionTimeMs());
     }
 
     public void publish(InstanceFlowHeaders instanceFlowHeaders, Object instance) {

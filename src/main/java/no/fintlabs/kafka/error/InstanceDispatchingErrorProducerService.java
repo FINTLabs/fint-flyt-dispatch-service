@@ -6,7 +6,6 @@ import no.fintlabs.flyt.kafka.headers.InstanceFlowHeaders;
 import no.fintlabs.kafka.event.error.Error;
 import no.fintlabs.kafka.event.error.ErrorCollection;
 import no.fintlabs.kafka.event.error.topic.ErrorEventTopicNameParameters;
-import no.fintlabs.kafka.event.error.topic.ErrorEventTopicService;
 import org.springframework.stereotype.Service;
 
 import static no.fintlabs.kafka.error.ErrorCode.GENERAL_SYSTEM_ERROR;
@@ -19,15 +18,13 @@ public class InstanceDispatchingErrorProducerService {
     private final ErrorEventTopicNameParameters errorEventTopicNameParameters;
 
     public InstanceDispatchingErrorProducerService(
-            InstanceFlowErrorEventProducer errorEventProducer,
-            ErrorEventTopicService errorEventTopicService
+            InstanceFlowErrorEventProducer errorEventProducer
     ) {
         this.errorEventProducer = errorEventProducer;
         errorEventTopicNameParameters = ErrorEventTopicNameParameters
                 .builder()
                 .errorEventName("instance-dispatching-error")
                 .build();
-        errorEventTopicService.ensureTopic(errorEventTopicNameParameters, 0);
     }
 
     public void publishGeneralSystemErrorEvent(InstanceFlowHeaders instanceFlowHeaders) {
